@@ -26,7 +26,7 @@ cleaned_data <- data |>
     effectiveEndDate = as.Date(effectiveEndDate),
   )
 
-dbWriteTable(con, "azure_prices", cleaned_data, overwrite = TRUE)
+#dbWriteTable(con, "azure_prices", cleaned_data, overwrite = TRUE)
 
 #join the cleaned data with the azure regions data
 result <- cleaned_data %>%
@@ -35,8 +35,17 @@ result <- cleaned_data %>%
     by = c("armRegionName" = "post_name")
   )
 
+View(result) # result still has NA values for longitude and latitude
+
 cleaned <- result %>%
-  filter(!is.na(longitude) & !is.na(latitude))
+  filter(!is.na(longitude) & !is.na(latitude)) |> 
+  mutate(
+    longitude = as.numeric(longitude),
+    latitude = as.numeric(latitude)
+  )
+
+View(cleaned)
+glimpse(cleaned)
 
 dbWriteTable(con, "azure_prices", cleaned, overwrite = TRUE)
 

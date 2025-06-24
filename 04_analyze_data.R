@@ -1,10 +1,11 @@
-
 if (!requireNamespace("maps", quietly = TRUE)) install.packages("maps")
+if (!requireNamespace("plotly", quietly = TRUE)) install.packages("plotly")
 
 library(duckdb)
 library(dplyr)
 library(stringr)
 library(ggplot2)
+library(plotly)
 
 
 world <- map_data("world")
@@ -56,15 +57,16 @@ linux_data <- data |>
 proceq_offices <- readRDS("proceq_offices.rds")
 
 # Confirm that geocoding worked correctly
-View(proceq_offices)
+#View(proceq_offices)
 
 
 # Plot world map with your data as points, colored by retailPrice
-ggplot() +
+p <- ggplot() +
   geom_polygon(data = world, aes(x = long, y = lat, group = group),
                fill = "lightblue", color = "gray70") +
   geom_point(data = windows_data,
-             aes(x = longitude, y = latitude, color = retailPrice),
+             aes(x = longitude, y = latitude, color = retailPrice,
+                 text = paste("Location:", location, "<br>Price:", retailPrice)),
              size = 2, alpha = 0.8) +
 
 
@@ -85,7 +87,8 @@ ggplot() +
             color = "black", vjust=2, size = 3) +
   scale_color_viridis_c(option = "plasma") +
   theme_minimal() +
-  labs(title = "World Map with Azure Retail Price per hour in USD and
-                Proceq Offices, large point is EU West for D32ads v6
-                Virtual machine used for SAP",
+  labs(title = "World Map with Azure Retail Price per hour in USD and Proceq Offices, large point is EU West for D32ads v6 Virtual machine used for SAP",
        color = "Retail Price")
+
+# Convert to interactive plotly plot with tooltips
+ggplotly(p, tooltip = "text")
