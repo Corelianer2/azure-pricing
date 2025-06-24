@@ -1,0 +1,81 @@
+install.packages("tidygeocoder")
+install.packages("maps")
+
+library("duckdb")
+library("dplyr")
+library("stringr")
+library("ggplot2")
+library(tidygeocoder)
+
+world <- map_data("world")
+
+con <- dbConnect(duckdb::duckdb(), dbdir = "azure_prices.duckdb")
+
+
+#'  Azure Prices Dataset from Microsoft
+#'
+#' The prices are retail prices from the following API https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices
+#'
+#' @format A data frame with 100 rows and 4 variables:
+#' \describe{
+#'   \item{meterName}{Unique identifier for each order (integer)}
+#'   \item{type}{Meter consumption type. Other types are Reservation and Consumption.}
+#'   \item{armRegionName}{	Azure Resource Manager region where the service is available. This version only supports prices on Commercial Cloud.}
+#'   \item{location}{Azure data center where the resource is deployed}
+#'   \item{serviceFamily}{Service family of the SKU}
+#'   \item{serviceName}{Name of the service}
+#'   \item{armSkuName}{SKU name registered in Azure}
+#'    \item{term}{Term length for an Azure savings plan, associated with savingsPlan information.}
+#' }
+#' @source Generated for example purposes.
+"azure_prices"
+
+data <- dbReadTable(con, "azure_prices")
+
+cleaned_data <- data |>
+  mutate(
+    effectiveStartDate = as.Date(effectiveStartDate),
+    effectiveEndDate = as.Date(effectiveEndDate),
+  )
+
+# Display the structure of the data
+
+linux_data <- cleaned_data |>
+  filter(meterName == "D32ads v6") |>
+  filter(type == "Consumption") |>
+  filter(!endsWith(productName, "Windows")) |>
+  arrange(desc(retailPrice)) |>
+  geocode(location, method = "osm", lat = latitude, long = longitude)
+
+View(linux_data)
+
+windows_data <- cleaned_data |>
+  filter(meterName == "D32ads v6") |>
+  filter(type == "Consumption") |>
+  filter(endsWith(productName, "Windows")) |>
+  arrange(desc(retailPrice)) |>
+  geocode(location, method = "osm", lat = latitude, long = longitude)
+
+ggplot(world, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "lightblue", color = "gray70") +
+  theme_minimal() +
+  labs(title = "World Map")
+
+ggplot(linux_data, aes(longitude, latitude, fill = retailPrice)) +
+  geom_polygon(color = "gray70") +
+  theme_minimal() +
+  labs(fill = "Retail Price",
+       title = "Retail Price of D32ads v6 in Linux vs Windows",
+       x = "Longitude",
+       y = "Latitude") 
+
+ggplot() +
+  geom_bar(data = linux_data, aes(x = armRegionName, y = retailPrice), stat = "identity", fill = "blue") +
+  geom_text(data = linux_data, aes(x = armRegionName, y = retailPrice, label = armRegionName), vjust = -0.5) +
+  geom_bar(data = windows_data, aes(x = armRegionName, y = retailPrice), stat = "identity", fill = "red", alpha = 0.5) +
+  labs(title = "Price Comparison for D32ads v6",
+       x = "Azure Region",
+       y = "Retail Price") +
+  theme_minimal()
+
+View(windows_data)

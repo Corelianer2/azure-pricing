@@ -1,0 +1,55 @@
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(knitr)
+
+build_pricing_table <- function(json_data, table_data) {
+  items <- json_data$Items
+  if (length(items) > 0) {
+    for (item in items) {
+      table_data <- rbind(
+        table_data,
+        data.frame(
+          SKU = item$armSkuName,
+          Retail_Price = item$retailPrice,
+          Unit_of_Measure = item$unitOfMeasure,
+          Region = item$armRegionName,
+          Meter = item$meterName,
+          Product_Name = item$productName,
+          stringsAsFactors = FALSE
+        )
+      )
+    }
+  }
+  table_data
+}
+
+# Main logic
+table_data <- data.frame(
+  SKU = character(),
+  Retail_Price = numeric(),
+  Unit_of_Measure = character(),
+  Region = character(),
+  Meter = character(),
+  Product_Name = character(),
+  stringsAsFactors = FALSE
+)
+
+api_url <- "https://prices.azure.com/api/retail/prices"
+
+
+response <- GET(api_url)
+json_data <- fromJSON(content(response, as = "text"))
+
+table_data <- build_pricing_table(json_data, table_data)
+next_page <- json_data$NextPageLink
+
+while (!is.null(nextPage) && nextPage != "") {
+  response <- GET(nextPage)
+  json_data <- fromJSON(content(response, as = "text"))
+  table_data <- build_pricing_table(json_data, table_data)
+  next_page <- json_data$NextPageLink
+}
+
+# Print the table
+kable(table_data, format = "markdown")
