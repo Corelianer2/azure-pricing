@@ -1,4 +1,6 @@
-if (!requireNamespace("tidygeocoder", quietly = TRUE)) install.packages("tidygeocoder")
+if (!requireNamespace("tidygeocoder", quietly = TRUE)) {
+  install.packages("tidygeocoder")
+}
 
 library(httr)
 library(jsonlite)
@@ -7,7 +9,6 @@ library(duckdb)
 
 response <- GET("https://datacenters.microsoft.com/wp-json/globe/regions")
 data <- fromJSON(content(response, as = "text"))
-str(data)
 
 azure_regions <- data |>
   select(
@@ -40,16 +41,17 @@ cleaned <- result %>%
 dbWriteTable(con, "azure_prices", cleaned, overwrite = TRUE)
 
 
-# Geocode Proecq Offices
+# Geocode Proceq Offices
 proceq_offices <- data.frame(
   location = c("Ringstrasse 2,8603 Schwerzenbach",
                "Aliquippa, PA 15001, USA",
                "Bedford,MK44 3RZ,United Kingdom",
                "1 Fusionopolis Way, Singapore"),
   office_name = c("HQ Switzerland",
-    "USA office", "UK Office", "Singapore Office"
-  )
-)  |>
+                  "USA office",
+                  "UK Office",
+                  "Singapore Office")
+) |>
   geocode(location, method = "osm", lat = latitude, long = longitude)
 
 # Write Dataframe, so we don't need to geocode the addresses multiple times

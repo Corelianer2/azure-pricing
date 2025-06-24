@@ -13,3 +13,5 @@
 *.rds
 *.png
 *.duckdb
+*.duckdb.wal
+.RData
