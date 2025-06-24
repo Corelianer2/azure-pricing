@@ -3,9 +3,13 @@
 .Rapp.history
 
 # User-specific files
-.Ruserdata
 .Rproj.user
 
 # Temporary files
 .RdataTmp
 .RdataTmp1
+
+# Exclude Data files
+*.rds
+*.png
+*.duckdb

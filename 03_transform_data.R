@@ -54,36 +54,3 @@ proceq_offices <- data.frame(
 
 # Write Dataframe, so we don't need to geocode the addresses multiple times
 saveRDS(proceq_offices, "proceq_offices.rds")
-
-
-
-
-
-# Old approach, not used anymore
-# Fix wrongly geocoded "EU West", set to Amsterdam, Netherlands
-#geocoded_data$latitude[geocoded_data$location == "EU West"] <- 52.379189
-#geocoded_data$longitude[geocoded_data$location == "EU West"] <- 4.899431
-#View(geocoded_data)
-
-
-#linux_data <- cleaned_data |>
-#  filter(meterName == "D32ads v6") |>
-#  filter(type == "Consumption") |>
-#  filter(!endsWith(productName, "Windows")) |>
-#  arrange(desc(retailPrice)) |>
-#  geocode(location, method = "osm", lat = latitude, long = longitude)
-#
-#linux_data$latitude[linux_data$location == "EU West"] <- 52.379189
-#linux_data$longitude[linux_data$location == "EU West"] <- 4.899431
-
-#windows_data <- cleaned_data |>
-#  filter(meterName == "D32ads v6") |>
-#  filter(type == "Consumption") |>
-#  filter(endsWith(productName, "Windows")) |>
-#  arrange(desc(retailPrice)) |>
-#  geocode(location, method = "osm", lat = latitude, long = longitude)
-
-# Fix wrongly geocoded "EU West", set to Amsterdam, Netherlands
-#windows_data$latitude[windows_data$location == "EU West"] <- 52.379189
-#windows_data$longitude[windows_data$location == "EU West"] <- 4.899431
-
