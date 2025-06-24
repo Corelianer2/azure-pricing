@@ -4,6 +4,7 @@
 
 # User-specific files
 .Ruserdata
+.Rproj.user
 
 # Temporary files
 .RdataTmp
