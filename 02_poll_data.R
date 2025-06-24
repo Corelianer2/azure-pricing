@@ -8,6 +8,7 @@ library(duckdb)
 azure_api_data <- data.frame(
   currencyCode = character(),
   tierMinimumUnits = character(),
+  location = character(),
   retailPrice = numeric(),
   unitPrice = numeric(),
   armRegionName = character(),
@@ -27,7 +28,9 @@ azure_api_data <- data.frame(
   isPrimaryMeterRegaion = logical(),
   armSkuName = character(),
   reservationTerm = character(),
-  effectiveEndDate = character())
+  effectiveEndDate = character(),
+  isPrimaryMeterRegion = logical()
+)
 
 api_url <- "https://prices.azure.com/api/retail/prices"
 
@@ -46,24 +49,24 @@ con <- dbConnect(duckdb::duckdb(), dbdir = "azure_prices.duckdb")
 dbExecute(con, "DROP TABLE IF EXISTS azure_prices;")  # Drop table if it exists
 
 # Create the table with the specified schema
-dbWriteTable(con, "azure_prices", azure_api_data, append = TRUE, overwrite = FALSE)
+dbWriteTable(con, "azure_prices", azure_api_data,
+             append = TRUE, overwrite = FALSE)
 
 
 next_page <- json_data$NextPageLink
-
-
 
 while (!is.null(next_page) && next_page != "") {
   response <- GET(next_page)
   json_data <- fromJSON(content(response, as = "text"))
   azure_api_data <- json_data$Items
-  dbWriteTable(con, "azure_prices", azure_api_data, append = TRUE, overwrite = FALSE)
+  dbWriteTable(con, "azure_prices", azure_api_data,
+               append = TRUE, overwrite = FALSE)
   next_page <- json_data$NextPageLink
 }
 
-# Print the table
-# Display "azure_prices" from DuckDB
+View(azure_api_data)
+
+# Close the database connection
+dbDisconnect(con)
+
 print("Done loading data into DuckDB.")
-
-
-
