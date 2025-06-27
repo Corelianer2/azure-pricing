@@ -1,0 +1,19 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: Docker@2
+  displayName: Build Docker image
+  inputs:
+    command: build
+    Dockerfile: Dockerfile
+    tags: latest
+
+- task: Docker@2
+  displayName: Run R script in Docker
+  inputs:
+    command: run
+    imageName: $(Build.Repository.Name):latest
