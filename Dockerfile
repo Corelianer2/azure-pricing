@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
+    xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Install R packages
