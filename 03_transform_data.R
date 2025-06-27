@@ -16,6 +16,7 @@ azure_regions <- data |>
     latitude, longitude, isOpen, dataResidency, continent
   )
 
+View(azure_regions)
 
 con <- dbConnect(duckdb::duckdb(), dbdir = "azure_prices.duckdb")
 data <- dbReadTable(con, "azure_prices")
