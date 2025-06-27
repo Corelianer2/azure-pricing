@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install R packages
-RUN R -e "install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'plotly', 'maps', 'DBI', 'duckdb'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages('DBI', repos='https://cloud.r-project.org/'); install.packages('duckdb', repos='https://cloud.r-project.org/'); install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'plotly', 'maps'), repos='https://cloud.r-project.org/')"
 
 WORKDIR /app
 COPY . /app
