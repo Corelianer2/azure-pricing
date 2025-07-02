@@ -12,10 +12,7 @@
 # Exclude Data files
 *.rds
 *.png
-*.duckdb
-*.duckdb.wal
 .RData
 
 #Excluding deployment files for Shiny
 *.dcf
-

@@ -39,7 +39,7 @@ result <- cleaned_data %>%
 View(result) # result still has NA values for longitude and latitude
 
 cleaned <- result %>%
-  filter(!is.na(longitude) & !is.na(latitude)) |> 
+  filter(!is.na(longitude) & !is.na(latitude)) |>
   mutate(
     longitude = as.numeric(longitude),
     latitude = as.numeric(latitude)
@@ -51,20 +51,17 @@ glimpse(cleaned)
 dbWriteTable(con, "azure_prices", cleaned, overwrite = TRUE)
 
 
-# Geocode Proceq Offices
-proceq_offices <- data.frame(
-  location = c("Ringstrasse 2,8603 Schwerzenbach",
-               "Aliquippa, PA 15001, USA",
-               "Bedford,MK44 3RZ,United Kingdom",
-               "1 Fusionopolis Way, Singapore"),
-  office_name = c("HQ Switzerland",
-                  "USA office",
-                  "UK Office",
-                  "Singapore Office")
-) |>
-  geocode(location, method = "osm", lat = latitude, long = longitude)
+# Geocode Company Offices
+company_offices <- data.frame(
+  location = c("Badenerstrasse 21,8004 Zürich, Switzerland"),
+  office_name = c("HQ cynkra GmbH")
+)
+
+company_offices <- geocode(company_offices, address = location, method = "osm", lat = latitude, long = longitude)
+
+
 
 # Write Dataframe, so we don't need to geocode the addresses multiple times
-saveRDS(proceq_offices, "proceq_offices.rds")
+saveRDS(company_offices, "company_offices.rds")
 
 print("Done transforming data")

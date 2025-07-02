@@ -18,11 +18,10 @@ con <- dbConnect(duckdb::duckdb(), dbdir = "azure_prices.duckdb")
 
 # Goal: Analyze the Microsoft Windows Azure prices for a specific
 #       virtual machine type # (D32ads v6) and visualize the data
-#       on a world map, highlighting the Proceq offices.
+#       on a world map, highlighting the Company office.
 # Load the pricing data from the Microsoft Azure API.
 # into a DuckDB database and perform the following steps:
 #' Azure Prices Dataset
-# Highlight the 3 Proceq offices on the map
 
 
 #'  Azure Prices Dataset from Microsoft
@@ -44,10 +43,10 @@ con <- dbConnect(duckdb::duckdb(), dbdir = "azure_prices.duckdb")
 #' }
 #' @source Generated for example purposes.
 
-# proceq_offices <- readRDS("proceq_offices.rds")
+ company_offices <- readRDS("company_offices.rds")
 
 # Confirm that geocoding worked correctly
-#View(proceq_offices)
+#View(company_offices)
 
 fetch_data_from_api <- function() {
   source("02_poll_data.R")
@@ -96,18 +95,36 @@ p <- ggplot() +
 # Convert ggplot to plotly for interactivity
 ui <- fluidPage(
   titlePanel("Interactive Shiny App to Visualize Microsoft Azure Retail Prices for different Microsoft Datacenters"),
+  tags$br(),
+  tags$p("To find more information about the Virtual Machine type D32ads v6 please see:"),
+  tags$a(
+    href = "https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/dadsv6-series?tabs=sizebasic",
+    "D32ads v6 Virtual Machine Documentation (official Microsoft documentation)",
+    target = "_blank"
+  ),
+  tags$br(),
+    tags$br(),
+  tags$p("To find further information about the API prices please see:"),
+  tags$a(
+    href = "https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices",
+    "Azure Retail Prices API Documentation (official Microsoft REST API for current Azure retail prices)",
+    target = "_blank"
+  ),
   tags$div(
     style = "position:relative; width:100%; padding-bottom:66.67%;", # 2:3 aspect ratio
     tags$div(
       style = "position:absolute; top:0; left:0; width:100%; height:100%;",
+      tags$br(),
       plotlyOutput("myplot", height = "100%", width = "100%")
     )
   ),
   # Move the buttons below the plot
   div(
     style = "margin-top: 20px; text-align: center;",
-    actionButton("reload_db", "Reload Data from DuckDB"),
-    actionButton("reload_api", "Reload Data from API")
+    tags$br(),
+    actionButton("reload_db", "Reload Data from DuckDB")
+    # Doesn't work on Shinyapps.io because the idle timeout is too short
+    #actionButton("reload_api", "Reload Data from API")
   )
 )
 
@@ -154,18 +171,12 @@ server <- function(input, output, session) {
                  size = 4, alpha = 0.8) +
 
 
-      geom_point(data = proceq_offices,
-                 aes(x = longitude, y = latitude),
+      geom_point(data = company_offices,
+                 aes(x = longitude, y = latitude, text = office_name),
                  color = "red", size = 4, shape = 17) +
-      geom_text(data = subset(proceq_offices, office_name != "HQ Switzerland"),
-                aes(x = longitude, y = latitude, label = office_name),
-                color = "black", vjust=-2, size = 3) +
-      geom_text(data = subset(proceq_offices, office_name == "HQ Switzerland"),
-                aes(x = longitude, y = latitude, label = office_name),
-                color = "black", vjust=2, size = 3) +
       scale_color_viridis_c(option = "plasma") +
       theme_minimal() +
-      labs(title = "Prices per hour in USD",
+      labs(title = "Price of a D32ads v6 Virtual Machine with 32 vCPUs and 128 GB RAM",
            color = "Retail Price") +
       coord_fixed()  # This keeps the map's aspect ratio
 
