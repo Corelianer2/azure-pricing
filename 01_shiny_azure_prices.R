@@ -1,6 +1,8 @@
 if (!requireNamespace("maps", quietly = TRUE)) install.packages("maps")
 if (!requireNamespace("plotly", quietly = TRUE)) install.packages("plotly")
 if (!requireNamespace("shiny", quietly = TRUE)) install.packages("shiny")
+if (!requireNamespace("rsconnect", quietly = TRUE)) install.packages("rsconnect")
+
 
 library(duckdb)
 library(dplyr)
@@ -8,6 +10,7 @@ library(stringr)
 library(ggplot2)
 library(plotly)
 library(shiny)
+library(rsconnect)
 
 world <- map_data("world")
 
@@ -88,13 +91,11 @@ p <- ggplot() +
             color = "black", vjust=2, size = 3) +
   scale_color_viridis_c(option = "plasma") +
   theme_minimal() +
-  labs(title = "The chosen ressource type is a D32ads v6 Virtual machine used for SAP",
-       color = "Retail Price") +
   coord_fixed()  # This keeps the map's aspect ratio
 
 # Convert ggplot to plotly for interactivity
 ui <- fluidPage(
-  titlePanel("Interactive Shiny App to Visualize Microsoft Azure Retail Prices for different Microsoft Azure Datacenters"),
+  titlePanel("Interactive Shiny App to Visualize Microsoft Azure Retail Prices for different Microsoft Datacenters"),
   tags$div(
     style = "position:relative; width:100%; padding-bottom:66.67%;", # 2:3 aspect ratio
     tags$div(
@@ -143,7 +144,7 @@ server <- function(input, output, session) {
                    fill = "lightblue", color = "gray70") +
       geom_point(data = windows_data,
                  aes(x = longitude, y = latitude, color = retailPrice,
-                     text = paste("Location:", location, "<br>Price:", retailPrice)),
+                     text = paste("Location:", location, "<br>Price:", retailPrice, "USD per hour", "<br>Product Name:", productName)),
                  size = 2, alpha = 0.8) +
 
 
@@ -179,7 +180,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$reload_api, {
     # Invalidate the reactive poll immediately
-    fetch_data_from_api()
+    #fetch_data_from_api()
   })
 }
 

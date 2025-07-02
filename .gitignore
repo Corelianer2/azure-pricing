@@ -15,3 +15,7 @@
 *.duckdb
 *.duckdb.wal
 .RData
+
+#Excluding deployment files for Shiny
+*.dcf
+

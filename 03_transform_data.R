@@ -66,3 +66,5 @@ proceq_offices <- data.frame(
 
 # Write Dataframe, so we don't need to geocode the addresses multiple times
 saveRDS(proceq_offices, "proceq_offices.rds")
+
+print("Done transforming data")
